@@ -1,9 +1,9 @@
-// backend/server.js
 const express = require("express");
 const http = require("http");
 const socketIO = require("socket.io");
 const cors = require("cors");
 require("dotenv").config();
+const { admin, db } = require("./utils/firebaseConfig");
 
 const app = express();
 app.use(cors());
@@ -17,14 +17,22 @@ const io = socketIO(server, {
 
 // Routes
 app.get("/", (req, res) => {
-  res.send("Video Calling App Backend");
+  res.send("Video Calling App Backend is running!");
 });
 
 // WebRTC signaling
 io.on("connection", (socket) => {
   console.log("New client connected");
 
-  // Signaling events
+  socket.on("join-room", (roomId, userId) => {
+    socket.join(roomId);
+    socket.to(roomId).emit("user-connected", userId);
+
+    socket.on("disconnect", () => {
+      socket.to(roomId).emit("user-disconnected", userId);
+    });
+  });
+
   socket.on("offer", (data) => {
     socket.to(data.target).emit("offer", data);
   });
@@ -35,10 +43,6 @@ io.on("connection", (socket) => {
 
   socket.on("ice-candidate", (data) => {
     socket.to(data.target).emit("ice-candidate", data);
-  });
-
-  socket.on("disconnect", () => {
-    console.log("Client disconnected");
   });
 });
 
