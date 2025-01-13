@@ -1,4 +1,4 @@
-const socket = io("http://localhost:5000"); // Replace with your backend URL
+const socket = io("https://video-calling-backend-afat.onrender.com"); // Replace with your backend URL
 const roomId = "test-room"; // Use a dynamic room ID in the future
 const userId = Math.random().toString(36).substring(2, 15); // Temporary user ID
 
